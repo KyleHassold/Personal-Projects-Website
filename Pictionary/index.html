@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <link rel="stylesheet" href="styles.css">
+        <script>
+            var animals = ["Dog", "Cat", "Elephant", "Red Panda", "Gerbil", "Rat", "Rhino"];
+            var places = ["Paris", "New York", "Del Val", "Washington D.C.", "Canada", "Greece"];
+            var objects = ["Paper", "Pencil", "Cup", "Scissors", "Box", "Apple", "Pear", "Desk", "TV"];
+            var people = ["Robert Downy Jr.", "Kyle Hassold", "Skyler Krouse", "Drake"];
+            
+            function ChooseA() {
+                var choosen = animals[Math.floor(Math.random()*animals.length)];
+                window.location.href = 'DrawScreen.html#' + choosen;
+            }
+            function ChoosePl() {
+                var choosen = places[Math.floor(Math.random()*places.length)];
+                window.location.href = 'DrawScreen.html#' + choosen;
+            }
+            function ChooseO() {
+                var choosen = objects[Math.floor(Math.random()*objects.length)];
+                window.location.href = 'DrawScreen.html#' + choosen;
+            }
+            function ChoosePe() {
+                var choosen = people[Math.floor(Math.random()*people.length)];
+                window.location.href = 'DrawScreen.html#' + choosen;
+            }
+        </script>
+    </head>
+    <body>
+        <h1> PICTIONARY </h1>
+        <h2> Please select a catagory from the options below: </h2>
+        <div class="btn-group" style="width:100%">
+          <button onClick="ChooseA()"> Animals <img src="Images/puppies.jpg" alt="Pic of an adorable puppy!"></button>
+          <button onClick="ChoosePl()"> Places <img src="Images/places.jpg" alt="Pic of a beautiful place"></button>
+        </div>
+        <div class="btn-group" style="width:100%">
+          <button onClick="ChooseO()"> Objects <img src="Images/objects.jpg" alt="Pic of objects"></button>
+          <button onClick="ChoosePe()"> People <img src="Images/people.jpg" alt="Pic of people"></button>
+        </div>
+        <p>
+            This games was created by Kyle Hassold and Skyler Krouse
+        </p>
+    </body>
+</html>
+

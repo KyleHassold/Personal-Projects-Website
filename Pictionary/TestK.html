@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <script>
+            var prev;
+            var curr;
+            var startP;
+            var click = false;
+            var select = 0;
+            var saved = new Array();
+            var tempSave = new Image();
+            var i = -1;
+            var fill = true;
+            var go = false;
+            var wd = window.innerWidth - 70;
+            var ht = window.innerHeight - 300;
+            
+            var testNum = 0;
+            
+            
+            function draw() {
+                var canvas = document.getElementById('myCanvas');
+                if(go && click && canvas.getContext) {
+                    var ctx = canvas.getContext("2d");
+                    if(select === 0) {
+                        pen(canvas, ctx);
+                    } else if (select === 1) {
+                        circle(canvas, ctx);
+                    } else if(select === 2) {
+                        rectangle(canvas, ctx);
+                    }
+                }
+            }
+            
+            function pen(canvas, ctx) {
+                ctx.strokeStyle = getColor();
+                ctx.lineWidth = 2;
+                ctx.beginPath();
+                ctx.moveTo(prev.x, prev.y);
+                var curr = getMousePos(canvas, event);
+                ctx.lineTo(curr.x,curr.y);
+                ctx.closePath();
+                ctx.stroke();
+                prev = getMousePos();
+            }
+            function circle(canvas, ctx) {
+                imgDraw(ctx);
+                curr = getMousePos();
+                var radius = Math.pow(Math.pow((curr.x-startP.x),2) + Math.pow((curr.y-startP.y),2),.5);
+                ctx.fillStyle = getColor();
+                ctx.strokeStyle = getColor();
+                ctx.beginPath();
+                ctx.arc(startP.x, startP.y, radius, 0, 2 * Math.PI);
+                if (fill) {
+                    ctx.fill();
+                    test(1);
+                } else {
+                    ctx.stroke();
+                }
+            }
+            function rectangle(canvas, ctx) {
+                imgDraw(ctx);
+                curr = getMousePos();
+                var w = curr.x-startP.x;
+                var h = curr.y-startP.y;
+                ctx.fillStyle = getColor();
+                ctx.strokeStyle = getColor();
+                ctx.beginPath();
+                if (fill) {
+                    ctx.fillRect(startP.x, startP.y, w, h);
+                } else {
+                    ctx.strokeRect(startP.x, startP.y, w, h);
+                }
+            }
+            function imgDraw(ctx) {
+                ctx.clearRect(0, 0, wd, ht);
+                var img = new Image();
+                img.onload = function() {
+                    ctx.drawImage(img, 0, 0);
+                    test(2);
+                };
+                img.src = tempSave.src;
+            }
+            
+            function clr() {
+                var canvas = document.getElementById("myCanvas");
+                var blank = document.createElement("canvas");
+                blank.width = canvas.width;
+                blank.height = canvas.height;
+
+                if(!(canvas.toDataURL() == blank.toDataURL())) {
+                    var ctx = canvas.getContext("2d");
+                    ctx.clearRect(0, 0, wd, ht);
+                    save();
+                }
+            }
+            function clrSave() {
+                var canvas = document.getElementById("myCanvas");
+                clr();
+                saved = new Array();
+                saved.push(canvas.toDataURL());
+                i = 0;
+            }
+            function save() {
+                i++;
+                if (i < saved.length) { saved.length = i; }
+                saved.push(document.getElementById('myCanvas').toDataURL());
+            }
+            function undo() {
+                var ctx = document.getElementById('myCanvas').getContext('2d');
+                if (i > 0) {
+                    i--;
+                    var canvasPic = new Image();
+                    canvasPic.src = saved[i];
+                    ctx.clearRect(0, 0, wd, ht);
+                    canvasPic.onload = function () { ctx.drawImage(canvasPic, 0, 0); };
+                }
+            }
+            function redo() {
+                var ctx = document.getElementById('myCanvas').getContext('2d');
+                if (i < saved.length - 1) {
+                    i++;
+                    var canvasPic = new Image();
+                    canvasPic.src = saved[i];
+                    ctx.clearRect(0, 0, wd, ht);
+                    canvasPic.onload = function () { ctx.drawImage(canvasPic, 0, 0); };
+                }
+            }
+            
+            function getChoosen() {
+                var text = window.location.hash.substring(1);
+                document.getElementById("myText").innerHTML = text;
+            }
+            function getMousePos() {
+                var canvas = document.getElementById('myCanvas');
+                var rect = canvas.getBoundingClientRect(), // abs. size of element
+                    scaleX = canvas.width / rect.width,    // relationship bitmap vs. element for X
+                    scaleY = canvas.height / rect.height;
+                return {
+                    x: (event.clientX - rect.left) * scaleX,
+                    y: (event.clientY - rect.top) * scaleY
+                };
+            }
+            function getColor() {
+                var CList = document.getElementById("color");
+                var color = CList.options[CList.selectedIndex].value;
+                return color;
+            }
+            function down() {
+                click = true;
+                prev = getMousePos();
+                if (select === 1 || select === 2) {
+                    tempSave.src = document.getElementById('myCanvas').toDataURL();
+                    startP = getMousePos();
+                }
+                draw();
+            }
+            function up() {
+                click = false;
+                save();
+            }
+            function leave() {
+                if (click) {
+                    click = false;
+                    save();
+                }
+            }
+            function Phil() {
+                fill = !(fill);
+                if(fill) {
+                    document.getElementById("fill").innerHTML = "Fill";
+                } else {
+                    document.getElementById("fill").innerHTML = "No Fill";
+                }
+            }
+            function selVal(val) {
+                select = val;
+            }
+            
+            function test(text) {
+                document.getElementById("test").innerHTML = text;
+            }
+            
+            function timer() {
+                var time = 60;
+                var timer = setInterval(function() {
+                    if(time > 0) {
+                        document.getElementById("timer").innerHTML = time;
+                        time--;
+                    } else {
+                        clearInterval(timer);
+                        document.getElementById("timer").innerHTML = "TIME'S UP";
+                        go = false;
+                    }
+                }, 1000);
+            }
+            
+            function start() {
+                var canvas = document.getElementById('myCanvas');
+                var ctx = document.getElementById('myCanvas').getContext('2d');
+                var time = 3;
+                var start = setInterval(function() {
+                    ctx.clearRect(0, 0, wd, ht);
+                    if(time > 0) {
+                        ctx.font = "30px Arial";
+                        ctx.fillText(time, (canvas.width/2), (canvas.height/2));
+                    } else if(time === 0) {
+                        ctx.font = "30px Arial";
+                        ctx.fillText("GO", (canvas.width/2), (canvas.height/2));
+                    } else {
+                        clearInterval(start);
+                        ctx.clearRect(0, 0, wd, ht);
+                        go = true;
+                        timer();
+                    }
+                    time--;
+                }, 1000);
+            }
+            function format() {
+                // This was an attempt to fix the buriness
+                var canvas = document.getElementById('myCanvas');
+                var ctx = canvas.getContext("2d");
+                canvas.style.width = wd + "px";
+                canvas.style.height = ht + "px";
+                
+                var scale = window.devicePixelRatio; // Change to 1 on retina screens to see blurry canvas.
+                canvas.width = wd * scale;
+                canvas.height = ht * scale;
+                
+                ctx.scale(scale, scale);
+            }
+            
+        </script>
+    </head>
+    
+    <body onLoad="getChoosen(); format(); save(); start()">
+        <h1> PICTIONARY</h1>
+        <h2> You have to draw: <span id="myText"></span></h2>
+        Color : <select id="color">
+            <option value="#000000" selected="selected">Black</option>
+            <option value="#FF0000">Red</option>
+            <option value="#FFFF00">Yellow</option>
+            <option value="#00FF00">Green</option>
+            <option value="#0000FF">Blue</option>
+        </select>
+        
+        <button onClick = "Phil()" id = "fill">Fill</button>
+        <button onClick = "undo()">Undo</button>
+        <button onClick = "redo()">Redo</button>
+        <button onClick = "clr()">Clear</button>
+        <button onClick = "clrSave()">Full Clear</button>
+        <form>
+            <input type="radio" name="style" onClick="selVal(0)" checked> Pen
+            <input type="radio" name="style" onClick="selVal(1)"> Circle
+            <input type="radio" name="style" onClick="selVal(2)"> Rectangle
+        </form>
+        
+        <h2>Time Left: <span id="timer">60</span></h2>
+        
+        <canvas id="myCanvas" onmousemove="draw()" onmousedown="down()" onmouseup="up()" onmouseleave="leave()" style="border:1px solid #c3c3c3;"> <!-- width:75%; height:30%; -->
+            Your browser does not support the canvas element.
+        </canvas>
+        
+        <p>Test: <span id="test"></span></p>
+    </body>
+</html>
+
